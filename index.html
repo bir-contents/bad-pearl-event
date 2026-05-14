@@ -216,6 +216,7 @@ textarea{min-height:92px;resize:vertical}
   .view-modal-next { right: 8px; }
 }
 
+.submit-status{min-height:22px;margin:10px 0 0;font-weight:900;text-align:center;color:#073077;}
 </style>
 </head>
 <body>
@@ -261,14 +262,14 @@ textarea{min-height:92px;resize:vertical}
         <h4>시상 내역</h4><ul><li>👑 매력통통 진주상 (2인) - 모바일 신세계 상품권 10만 원</li><li>👑 엉뚱발랄 진주상 (3인) - 비룡소 빅! 럭키박스</li><li>👑 개성만점 진주상 (10인) - 비룡북샵 포인트 50,000원</li><li>👑 표정천재 진주상 (5인) - 『불량 진주』 저자 사인본</li></ul>
       </div>
       <h3>응모하기</h3>
-      <label>이름<input type="text" placeholder="이름 입력"></label>
-      <label>휴대폰 번호<input type="tel" placeholder="010-0000-0000 형식으로 입력"></label>
-      <label>인스타그램 아이디<input type="text" placeholder="@ 없이 입력"></label>
-      <label>작품 한 줄 설명<textarea placeholder="작품을 한 줄로 소개해 주세요."></textarea></label>
-      <label>이미지 파일 1개<input class="real-file-input" type="file" accept="image/png,image/jpeg,image/webp"><div class="upload-box">JPG/PNG/WebP 파일 1개 업로드<br>10MB 이하</div></label>
-      <label class="agree"><input type="checkbox"><span>개인정보 수집 및 이용에 동의합니다.<button class="text-link-btn" type="button" onclick="togglePrivacy(event)">자세히 보기</button></span></label>
+      <label>이름<input id="childName" type="text" placeholder="이름 입력" autocomplete="name" required></label>
+      <label>휴대폰 번호<input id="phone" type="tel" placeholder="010-0000-0000 형식으로 입력" autocomplete="tel" required></label>
+      <label>인스타그램 아이디<input id="instagram" type="text" placeholder="@ 없이 입력" required></label>
+      <label>작품 한 줄 설명<textarea id="description" placeholder="작품을 한 줄로 소개해 주세요." required></textarea></label>
+      <label>이미지 파일 1개<input id="contestImage" class="real-file-input" type="file" accept="image/png,image/jpeg,image/webp" required><div class="upload-box">JPG/PNG/WebP 파일 1개 업로드<br>10MB 이하</div></label>
+      <label class="agree"><input id="privacyAgree" type="checkbox" required><span>개인정보 수집 및 이용에 동의합니다.<button class="text-link-btn" type="button" onclick="togglePrivacy(event)">자세히 보기</button></span></label>
       <div id="privacyDetail" class="privacy-detail"><strong>개인정보 수집 및 이용 안내</strong><br>1. 수집 항목: 이름, 휴대폰 번호, 인스타그램 아이디<br>2. 수집 및 이용 목적: 경품 당첨자 안내 및 경품 발송<br>3. 보유 및 이용 기간: 경품 발송 후 1개월 내 파기</div>
-      <button class="submit" onclick="submitContest()">접수하기</button>
+      <button id="submitButton" class="submit" type="button" onclick="submitContest()">접수하기</button><p id="submitStatus" class="submit-status"></p>
     </div>
     <div class="panel dark"><h3>친구들 작품 구경하기</h3><div class="slider"><div class="entry"><div><div style="font-size:48px;">✨</div></div></div></div></div>
   </div>
@@ -381,15 +382,201 @@ textarea{min-height:92px;resize:vertical}
 
 <footer class="admin-note">관리자 페이지: <a href="admin.html">admin.html</a> · 공개 전 보안 설정을 반드시 확인하세요.</footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js?v=6"></script>
 <script>
-function showSection(id){document.querySelectorAll('section.content').forEach(s=>s.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelector('[data-tab="'+id+'"]').classList.add('active');history.pushState(null,"","#"+id);}
-function toggleContestInfo(){document.getElementById('contestInfo').classList.toggle('open')}
-function togglePrivacy(e){e.preventDefault();e.stopPropagation();document.getElementById('privacyDetail').classList.toggle('open')}
-function showActivity(id,event){document.querySelectorAll('.activity-panel').forEach(p=>p.classList.remove('active'));document.getElementById('activity-'+id).classList.add('active');document.querySelectorAll('.activity-subtab').forEach(t=>t.classList.remove('active'));event.currentTarget.classList.add('active')}
 const OPEN_DATE = new Date('2026-05-15T10:00:00+09:00');
-function initActivity(){const now=new Date();const locked=document.getElementById('activityLocked');const content=document.getElementById('activityOpenContent');if(now>=OPEN_DATE){locked.style.display='none';content.style.display='block';}else{locked.style.display='block';content.style.display='none';}}
-window.addEventListener('DOMContentLoaded',()=>{const initial=location.hash.replace('#','')||'story';if(document.getElementById(initial))showSection(initial);initActivity();});
+const CONTEST_CLOSE_AT = new Date('2026-06-01T00:00:00+09:00');
 
+function getSupabaseClient() {
+  if (!window.supabase || !window.BAD_PEARL_CONFIG) {
+    console.error('Supabase library or config.js is not loaded.');
+    return null;
+  }
+  const cfg = window.BAD_PEARL_CONFIG;
+  if (!cfg.SUPABASE_URL || !cfg.SUPABASE_ANON_KEY) {
+    console.error('Missing Supabase config values.');
+    return null;
+  }
+  return window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
+}
+
+function showSection(id) {
+  document.querySelectorAll('section.content').forEach(s => s.classList.add('hidden'));
+  const target = document.getElementById(id);
+  if (target) target.classList.remove('hidden');
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  const tab = document.querySelector('[data-tab="' + id + '"]');
+  if (tab) tab.classList.add('active');
+  history.pushState(null, '', '#' + id);
+}
+
+function toggleContestInfo() {
+  const box = document.getElementById('contestInfo');
+  if (box) box.classList.toggle('open');
+}
+
+function togglePrivacy(e) {
+  if (e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+  const box = document.getElementById('privacyDetail');
+  if (box) box.classList.toggle('open');
+}
+
+function showActivity(id, event) {
+  document.querySelectorAll('.activity-panel').forEach(p => p.classList.remove('active'));
+  const panel = document.getElementById('activity-' + id);
+  if (panel) panel.classList.add('active');
+  document.querySelectorAll('.activity-subtab').forEach(t => t.classList.remove('active'));
+  if (event && event.currentTarget) event.currentTarget.classList.add('active');
+}
+
+function initActivity() {
+  const now = new Date();
+  const locked = document.getElementById('activityLocked');
+  const content = document.getElementById('activityOpenContent');
+  if (!locked || !content) return;
+  if (now >= OPEN_DATE) {
+    locked.style.display = 'none';
+    content.style.display = 'block';
+  } else {
+    locked.style.display = 'block';
+    content.style.display = 'none';
+  }
+}
+
+function initContestClose() {
+  const button = document.getElementById('submitButton');
+  const status = document.getElementById('submitStatus');
+  if (!button) return;
+  if (new Date() >= CONTEST_CLOSE_AT) {
+    button.disabled = true;
+    button.textContent = '접수가 마감되었습니다';
+    if (status) status.textContent = '5월 31일 접수가 종료되었습니다.';
+  }
+}
+
+async function submitContest() {
+  const status = document.getElementById('submitStatus');
+  const button = document.getElementById('submitButton');
+
+  function setStatus(message) {
+    if (status) status.textContent = message;
+    else alert(message);
+  }
+
+  try {
+    if (new Date() >= CONTEST_CLOSE_AT) {
+      setStatus('접수가 마감되었습니다.');
+      return;
+    }
+
+    const childName = (document.getElementById('childName')?.value || '').trim();
+    const phone = (document.getElementById('phone')?.value || '').trim();
+    const instagram = (document.getElementById('instagram')?.value || '').trim();
+    const description = (document.getElementById('description')?.value || '').trim();
+    const agree = !!document.getElementById('privacyAgree')?.checked;
+    const fileInput = document.getElementById('contestImage');
+    const file = fileInput?.files?.[0];
+
+    if (!childName || !phone || !instagram || !description) {
+      setStatus('필수 항목을 입력해 주세요.');
+      return;
+    }
+
+    if (!agree) {
+      setStatus('개인정보 수집 및 이용에 동의해 주세요.');
+      return;
+    }
+
+    if (!file) {
+      setStatus('이미지를 업로드해 주세요.');
+      return;
+    }
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      setStatus('JPG, PNG, WebP 이미지만 업로드할 수 있습니다.');
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      setStatus('이미지는 10MB 이하로 업로드해 주세요.');
+      return;
+    }
+
+    const sb = getSupabaseClient();
+    if (!sb) {
+      setStatus('연결 설정을 확인해 주세요.');
+      return;
+    }
+
+    if (button) {
+      button.disabled = true;
+      button.textContent = '접수 중...';
+    }
+    setStatus('');
+
+    const safeExt = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
+    const filePath = `${Date.now()}-${Math.random().toString(36).slice(2)}.${safeExt}`;
+
+    const { error: uploadError } = await sb.storage
+      .from('contest-images')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false,
+        contentType: file.type
+      });
+
+    if (uploadError) {
+      console.error('Upload error:', uploadError);
+      setStatus('이미지 업로드에 실패했습니다. 파일 형식과 용량을 확인해 주세요.');
+      return;
+    }
+
+    const { data: publicUrlData } = sb.storage
+      .from('contest-images')
+      .getPublicUrl(filePath);
+
+    const imageUrl = publicUrlData?.publicUrl || '';
+
+    const { error: insertError } = await sb
+      .from('contest_entries')
+      .insert([{
+        child_name: childName,
+        guardian_name: instagram,
+        phone: phone,
+        description: description,
+        image_url: imageUrl
+      }]);
+
+    if (insertError) {
+      console.error('Insert error:', insertError);
+      setStatus('접수 저장에 실패했습니다. 관리자 설정을 확인해 주세요.');
+      return;
+    }
+
+    alert('접수가 완료되었습니다!');
+    document.getElementById('childName').value = '';
+    document.getElementById('phone').value = '';
+    document.getElementById('instagram').value = '';
+    document.getElementById('description').value = '';
+    document.getElementById('privacyAgree').checked = false;
+    document.getElementById('contestImage').value = '';
+    setStatus('정상적으로 접수되었습니다.');
+
+  } catch (err) {
+    console.error('Submit error:', err);
+    setStatus('오류가 발생했습니다. 콘솔 오류를 확인해 주세요.');
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.textContent = '접수하기';
+    }
+  }
+}
 
 let viewModalItems = [];
 let viewModalIndex = 0;
@@ -403,6 +590,7 @@ function openViewModal(src, caption) {
   const modal = document.getElementById('viewModal');
   const image = document.getElementById('viewModalImage');
   const captionBox = document.getElementById('viewModalCaption');
+  if (!modal || !image || !captionBox) return;
   image.src = src;
   captionBox.innerHTML = caption || '';
   modal.classList.add('open');
@@ -449,77 +637,20 @@ document.addEventListener('click', function(e) {
     if (img) openViewModal(img.src, caption ? caption.innerHTML : '');
   }
 });
+
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') closeViewModal();
   if (e.key === 'ArrowLeft') moveViewModal(-1, e);
   if (e.key === 'ArrowRight') moveViewModal(1, e);
 });
 
-
-async function submitContest() {
-    try {
-        const childName = document.getElementById('childName')?.value?.trim() || '';
-        const phone = document.getElementById('phone')?.value?.trim() || '';
-        const instagram = document.getElementById('instagram')?.value?.trim() || '';
-        const description = document.getElementById('description')?.value?.trim() || '';
-        const fileInput = document.getElementById('contestImage');
-
-        if (!childName || !phone || !description) {
-            alert('필수 항목을 입력해 주세요.');
-            return;
-        }
-
-        if (!fileInput || !fileInput.files || !fileInput.files[0]) {
-            alert('이미지를 업로드해 주세요.');
-            return;
-        }
-
-        const file = fileInput.files[0];
-        const fileName = `${Date.now()}_${file.name}`;
-
-        const { data: uploadData, error: uploadError } = await supabase.storage
-            .from('contest-images')
-            .upload(fileName, file);
-
-        if (uploadError) {
-            console.error(uploadError);
-            alert('이미지 업로드 실패');
-            return;
-        }
-
-        const { data: publicUrlData } = supabase.storage
-            .from('contest-images')
-            .getPublicUrl(fileName);
-
-        const imageUrl = publicUrlData.publicUrl;
-
-        const { error: insertError } = await supabase
-            .from('contest_entries')
-            .insert([
-                {
-                    child_name: childName,
-                    guardian_name: instagram,
-                    phone: phone,
-                    description: description,
-                    image_url: imageUrl
-                }
-            ]);
-
-        if (insertError) {
-            console.error(insertError);
-            alert('접수 저장 실패');
-            return;
-        }
-
-        alert('접수가 완료되었습니다!');
-        location.reload();
-
-    } catch (err) {
-        console.error(err);
-        alert('오류가 발생했습니다.');
-    }
-}
-
+window.addEventListener('DOMContentLoaded', function() {
+  const initial = location.hash.replace('#', '') || 'story';
+  if (document.getElementById(initial)) showSection(initial);
+  initActivity();
+  initContestClose();
+});
 </script>
+
 </body>
 </html>
