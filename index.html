@@ -276,7 +276,7 @@ textarea{min-height:92px;resize:vertical}
 
 <section id="activity" class="content hidden">
   <div class="section-title"><span class="eyebrow">✦ Activity</span><h2>책놀이 도안</h2></div>
-  <div id="activityLocked" class="activity-locked"><div style="font-size:42px;margin-bottom:10px;">🔒</div><h3>Coming Soon</h3><p>책놀이 도안은 5월 14일 오전 10시에 공개됩니다.</p></div>
+  <div id="activityLocked" class="activity-locked"><div style="font-size:42px;margin-bottom:10px;">🔒</div><h3>Coming Soon</h3><p>책놀이 도안은 5월 15일 오전 10시에 공개됩니다.</p></div>
   <div id="activityOpenContent">
     <div class="activity-floating-tabs">
       <button class="activity-subtab active" onclick="showActivity('squishy',event)">빅 스퀴시 만들기</button>
@@ -382,13 +382,12 @@ textarea{min-height:92px;resize:vertical}
 <footer class="admin-note">관리자 페이지: <a href="admin.html">admin.html</a> · 공개 전 보안 설정을 반드시 확인하세요.</footer>
 
 <script>
-const OPEN_DATE = new Date('2026-05-15T10:00:00+09:00');
-const ACTIVITY_OPEN_AT=new Date("2026-05-14T10:00:00+09:00");
 function showSection(id){document.querySelectorAll('section.content').forEach(s=>s.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.querySelector('[data-tab="'+id+'"]').classList.add('active');history.pushState(null,"","#"+id);}
 function toggleContestInfo(){document.getElementById('contestInfo').classList.toggle('open')}
 function togglePrivacy(e){e.preventDefault();e.stopPropagation();document.getElementById('privacyDetail').classList.toggle('open')}
 function showActivity(id,event){document.querySelectorAll('.activity-panel').forEach(p=>p.classList.remove('active'));document.getElementById('activity-'+id).classList.add('active');document.querySelectorAll('.activity-subtab').forEach(t=>t.classList.remove('active'));event.currentTarget.classList.add('active')}
-function initActivity(){const now=new Date();const locked=document.getElementById('activityLocked');const content=document.getElementById('activityOpenContent');if(now>=ACTIVITY_OPEN_AT){locked.style.display='none';content.style.display='block';}else{locked.style.display='block';content.style.display='none';}}
+const OPEN_DATE = new Date('2026-05-15T10:00:00+09:00');
+function initActivity(){const now=new Date();const locked=document.getElementById('activityLocked');const content=document.getElementById('activityOpenContent');if(now>=OPEN_DATE){locked.style.display='none';content.style.display='block';}else{locked.style.display='block';content.style.display='none';}}
 window.addEventListener('DOMContentLoaded',()=>{const initial=location.hash.replace('#','')||'story';if(document.getElementById(initial))showSection(initial);initActivity();});
 
 
