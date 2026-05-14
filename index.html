@@ -268,7 +268,7 @@ textarea{min-height:92px;resize:vertical}
       <label>이미지 파일 1개<input class="real-file-input" type="file" accept="image/png,image/jpeg,image/webp"><div class="upload-box">JPG/PNG/WebP 파일 1개 업로드<br>10MB 이하</div></label>
       <label class="agree"><input type="checkbox"><span>개인정보 수집 및 이용에 동의합니다.<button class="text-link-btn" type="button" onclick="togglePrivacy(event)">자세히 보기</button></span></label>
       <div id="privacyDetail" class="privacy-detail"><strong>개인정보 수집 및 이용 안내</strong><br>1. 수집 항목: 이름, 휴대폰 번호, 인스타그램 아이디<br>2. 수집 및 이용 목적: 경품 당첨자 안내 및 경품 발송<br>3. 보유 및 이용 기간: 경품 발송 후 1개월 내 파기</div>
-      <button class="submit">접수하기</button>
+      <button class="submit" onclick="submitContest()">접수하기</button>
     </div>
     <div class="panel dark"><h3>친구들 작품 구경하기</h3><div class="slider"><div class="entry"><div><div style="font-size:48px;">✨</div></div></div></div></div>
   </div>
@@ -454,6 +454,71 @@ document.addEventListener('keydown', function(e) {
   if (e.key === 'ArrowLeft') moveViewModal(-1, e);
   if (e.key === 'ArrowRight') moveViewModal(1, e);
 });
+
+
+async function submitContest() {
+    try {
+        const childName = document.getElementById('childName')?.value?.trim() || '';
+        const phone = document.getElementById('phone')?.value?.trim() || '';
+        const instagram = document.getElementById('instagram')?.value?.trim() || '';
+        const description = document.getElementById('description')?.value?.trim() || '';
+        const fileInput = document.getElementById('contestImage');
+
+        if (!childName || !phone || !description) {
+            alert('필수 항목을 입력해 주세요.');
+            return;
+        }
+
+        if (!fileInput || !fileInput.files || !fileInput.files[0]) {
+            alert('이미지를 업로드해 주세요.');
+            return;
+        }
+
+        const file = fileInput.files[0];
+        const fileName = `${Date.now()}_${file.name}`;
+
+        const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('contest-images')
+            .upload(fileName, file);
+
+        if (uploadError) {
+            console.error(uploadError);
+            alert('이미지 업로드 실패');
+            return;
+        }
+
+        const { data: publicUrlData } = supabase.storage
+            .from('contest-images')
+            .getPublicUrl(fileName);
+
+        const imageUrl = publicUrlData.publicUrl;
+
+        const { error: insertError } = await supabase
+            .from('contest_entries')
+            .insert([
+                {
+                    child_name: childName,
+                    guardian_name: instagram,
+                    phone: phone,
+                    description: description,
+                    image_url: imageUrl
+                }
+            ]);
+
+        if (insertError) {
+            console.error(insertError);
+            alert('접수 저장 실패');
+            return;
+        }
+
+        alert('접수가 완료되었습니다!');
+        location.reload();
+
+    } catch (err) {
+        console.error(err);
+        alert('오류가 발생했습니다.');
+    }
+}
 
 </script>
 </body>
