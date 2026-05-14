@@ -247,6 +247,27 @@ textarea{min-height:92px;resize:vertical}
   font-size: 15px;
 }
 
+
+.gallery-card {
+  min-width: 180px !important;
+  max-width: 220px !important;
+  scroll-snap-align: center;
+  border-radius: 24px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 12px 28px rgba(0,0,0,.16);
+}
+.gallery-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  background: #fff;
+}
+.gallery-card-body {
+  display: none !important;
+}
+
 </style>
 </head>
 <body>
@@ -495,7 +516,7 @@ async function loadApprovedEntries() {
 
   const { data, error } = await sb
     .from('contest_entries')
-    .select('child_name, guardian_name, description, image_url, approved, created_at')
+    .select('image_url, approved, created_at')
     .eq('approved', true)
     .order('created_at', { ascending: false });
 
@@ -516,11 +537,7 @@ async function loadApprovedEntries() {
     const image = entry.image_url || '';
     return `
       <article class="gallery-card">
-        <img src="${image}" alt="${name} 작품">
-        <div class="gallery-card-body">
-          <strong>${name}</strong>
-          <span>${desc}</span>
-        </div>
+        <img src="${image}" alt="친구 작품">
       </article>
     `;
   }).join('');
