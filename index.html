@@ -217,6 +217,36 @@ textarea{min-height:92px;resize:vertical}
 }
 
 .submit-status{min-height:22px;margin:10px 0 0;font-weight:900;text-align:center;color:#073077;}
+
+.gallery-card {
+  min-width: 220px;
+  max-width: 260px;
+  scroll-snap-align: center;
+  border-radius: 24px;
+  overflow: hidden;
+  background: rgba(255,255,255,.96);
+  color: #073077;
+  box-shadow: 0 12px 28px rgba(0,0,0,.16);
+}
+.gallery-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  background: #fff;
+}
+.gallery-card-body {
+  padding: 13px 14px 15px;
+  font-size: 13px;
+  line-height: 1.45;
+  word-break: keep-all;
+}
+.gallery-card-body strong {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 15px;
+}
+
 </style>
 </head>
 <body>
@@ -271,7 +301,12 @@ textarea{min-height:92px;resize:vertical}
       <div id="privacyDetail" class="privacy-detail"><strong>개인정보 수집 및 이용 안내</strong><br>1. 수집 항목: 이름, 휴대폰 번호, 인스타그램 아이디<br>2. 수집 및 이용 목적: 경품 당첨자 안내 및 경품 발송<br>3. 보유 및 이용 기간: 경품 발송 후 1개월 내 파기</div>
       <button id="submitButton" class="submit" type="button" onclick="submitContest()">접수하기</button><p id="submitStatus" class="submit-status"></p>
     </div>
-    <div class="panel dark"><h3>친구들 작품 구경하기</h3><div class="slider"><div class="entry"><div><div style="font-size:48px;">✨</div></div></div></div></div>
+    <div class="panel dark">
+      <h3>친구들 작품 구경하기</h3>
+      <div id="approvedGallery" class="slider">
+        <div class="entry"><div><div style="font-size:48px;">✨</div><strong>승인된 작품이 여기에 보여요</strong></div></div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -445,6 +480,50 @@ function initActivity() {
     locked.style.display = 'block';
     content.style.display = 'none';
   }
+}
+
+
+async function loadApprovedEntries() {
+  const gallery = document.getElementById('approvedGallery');
+  if (!gallery) return;
+
+  const sb = getSupabaseClient();
+  if (!sb) {
+    gallery.innerHTML = '<div class="entry"><div>작품을 불러오지 못했습니다.</div></div>';
+    return;
+  }
+
+  const { data, error } = await sb
+    .from('contest_entries')
+    .select('child_name, guardian_name, description, image_url, approved, created_at')
+    .eq('approved', true)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Approved gallery load error:', error);
+    gallery.innerHTML = '<div class="entry"><div>작품을 불러오지 못했습니다.</div></div>';
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    gallery.innerHTML = '<div class="entry"><div><div style="font-size:48px;">✨</div><strong>승인된 작품이 여기에 보여요</strong></div></div>';
+    return;
+  }
+
+  gallery.innerHTML = data.map((entry) => {
+    const name = entry.child_name || '';
+    const desc = entry.description || '';
+    const image = entry.image_url || '';
+    return `
+      <article class="gallery-card">
+        <img src="${image}" alt="${name} 작품">
+        <div class="gallery-card-body">
+          <strong>${name}</strong>
+          <span>${desc}</span>
+        </div>
+      </article>
+    `;
+  }).join('');
 }
 
 function initContestClose() {
@@ -649,6 +728,7 @@ window.addEventListener('DOMContentLoaded', function() {
   if (document.getElementById(initial)) showSection(initial);
   initActivity();
   initContestClose();
+  loadApprovedEntries();
 });
 </script>
 
