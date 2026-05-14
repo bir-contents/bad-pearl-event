@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>불량 진주 이벤트 페이지</title>
+  <meta name="description" content="불량 진주 이야기, 그리기 콘테스트, 책놀이 도안, 도서 구매 페이지">
+  <style>
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      color: #fff;
+      background: #062f76;
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+    button, input, textarea { font: inherit; }
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 34px 18px 48px;
+      background:
+        radial-gradient(circle at 18% 18%, rgba(255,63,180,.34), transparent 24%),
+        radial-gradient(circle at 82% 14%, rgba(88,215,255,.32), transparent 23%),
+        radial-gradient(circle at 50% 88%, rgba(255,255,255,.16), transparent 32%),
+        linear-gradient(135deg, #0b48a5 0%, #062f76 50%, #071a3c 100%);
+    }
+    .hero:after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: .32;
+      background-image: linear-gradient(115deg, transparent 0%, transparent 16%, rgba(255,255,255,.22) 18%, transparent 27%, transparent 63%, rgba(255,255,255,.16) 65%, transparent 74%);
+      pointer-events: none;
+    }
+    .wrap { position: relative; z-index: 1; width: min(1080px, 100%); margin: 0 auto; }
+    .hero-grid { display: grid; grid-template-columns: 1fr; gap: 28px; align-items: center; text-align: center; }
+    .badge {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 9px 15px; border-radius: 999px;
+      background: linear-gradient(135deg, #ff3fb4 0%, #58d7ff 100%);
+      border: 1px solid rgba(255,255,255,.38);
+      color: #fff; font-weight: 900; font-size: 14px;
+      box-shadow: 0 12px 30px rgba(255,63,180,.35);
+    }
+    h1 {
+      margin: 14px 0 0;
+      font-size: clamp(48px, 13vw, 86px);
+      line-height: .95; letter-spacing: -0.06em; font-weight: 950;
+      text-shadow: 4px 4px 0 #ff3fb4, -2px -2px 0 #58d7ff, 0 10px 30px rgba(0,0,0,.3);
+    }
+    .hero-copy { margin: 18px auto 0; max-width: 560px; color: rgba(241,247,255,.94); font-size: 16px; line-height: 1.75; word-break: keep-all; }
+    .hero-copy strong { color: #ffecf8; font-size: 1.18em; text-shadow: 2px 2px 0 #ff3fb4, -1px -1px 0 #58d7ff; letter-spacing: .08em; }
+    .book-cover { position: relative; width: min(310px, 72vw); margin: 0 auto; animation: float 4.2s ease-in-out infinite; }
+    .book-cover:before { content: ""; position: absolute; inset: -18px; background: rgba(255,255,255,.22); filter: blur(22px); border-radius: 30px; }
+    .book-cover img { position: relative; width: 100%; display: block; border-radius: 24px; border: 4px solid rgba(255,255,255,.25); box-shadow: 0 24px 60px rgba(0,0,0,.38); }
+    @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    nav { position: sticky; top: 0; z-index: 20; background: rgba(6,47,118,.94); backdrop-filter: blur(12px); border-top: 1px solid rgba(255,255,255,.1); border-bottom: 1px solid rgba(255,255,255,.1); padding: 12px; }
+    .tabs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; width: min(980px, 100%); margin: 0 auto; }
+    .tab { border: 0; border-radius: 17px; padding: 13px 8px; font-size: 14px; font-weight: 950; background: rgba(255,255,255,.1); color: #fff; cursor: pointer; }
+    .tab.active { background: linear-gradient(135deg, #ff3fb4 0%, #58d7ff 100%); color: #fff; box-shadow: 0 10px 25px rgba(255,63,180,.35); }
+    .tab:nth-child(1):not(.active), .tab:nth-child(3):not(.active) { background: rgba(255,63,180,.18); }
+    .tab:nth-child(2):not(.active), .tab:nth-child(4):not(.active) { background: rgba(88,215,255,.18); }
+    section.content { width: min(1080px, 100%); margin: 0 auto; padding: 42px 18px 56px; overflow-x: hidden; }
+    .section-title { text-align: center; margin-bottom: 22px; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 5px; padding: 7px 12px; border-radius: 999px; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.18); color: #bff3ff; font-size: 12px; font-weight: 900; }
+    h2 { margin: 11px 0 0; font-size: clamp(26px, 7vw, 44px); letter-spacing: -0.04em; font-weight: 950; word-break: keep-all; }
+    .section-title p { max-width: 660px; margin: 12px auto 0; color: rgba(241,247,255,.86); line-height: 1.7; font-size: 15px; }
+    .slider { display: flex; gap: 14px; overflow-x: auto; padding: 4px 2px 18px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+    .story-card { min-width: 78%; scroll-snap-align: center; border-radius: 28px; overflow: hidden; background: transparent; box-shadow: 0 16px 38px rgba(0,0,0,.22); cursor: pointer; }
+    .story-card img { width: 100%; display: block; }
+    .grid2 { display: grid; grid-template-columns: 1fr; gap: 18px; width: 100%; max-width: 100%; }
+    .panel { border-radius: 30px; background: rgba(255,255,255,.96); color: #073077; box-shadow: 0 16px 38px rgba(0,0,0,.24); padding: 20px 16px; width: 100%; max-width: 100%; overflow: hidden; }
+    .panel.dark { background: rgba(255,255,255,.1); color: #fff; border: 1px solid rgba(255,255,255,.12); }
+    .contest-info-toggle { display: inline-flex; align-items: center; justify-content: center; border: 0; border-radius: 999px; padding: 10px 15px; margin-bottom: 16px; background: linear-gradient(135deg, #ff3fb4, #58d7ff); color: #fff; font-size: 13px; font-weight: 950; cursor: pointer; box-shadow: 0 10px 24px rgba(255,63,180,.28); }
+    .contest-info-box { display: none; margin: 0 0 18px; padding: 16px; border-radius: 20px; background: #f4f9ff; color: #073077; font-size: 13px; line-height: 1.65; font-weight: 650; word-break: keep-all; }
+    .contest-info-box.open { display: block; }
+    .contest-info-box h4 { margin: 14px 0 6px; font-size: 15px; font-weight: 950; color: #ff3fb4; }
+    .contest-info-box h4:first-child { margin-top: 0; }
+    .contest-info-box ol, .contest-info-box ul { margin: 0; padding-left: 18px; }
+    .contest-info-box p { margin: 0; color: #073077; }
+    .contest-info-box span { color: #475569; font-weight: 600; }
+    h3 { margin: 0; font-size: 24px; letter-spacing: -0.03em; }
+    label { display: block; margin-top: 14px; font-size: 14px; font-weight: 900; }
+    input[type='text'], input[type='tel'], textarea { width: 100%; margin-top: 7px; border: 1px solid #c7d7ff; background: #eef5ff; border-radius: 16px; padding: 15px 14px; font-size: 16px; outline: none; color: #073077; }
+    textarea { min-height: 92px; line-height: 1.55; resize: vertical; }
+    .real-file-input { width: 100%; padding: 14px; border-radius: 14px; background: #eaf3ff; border: 1px solid #c7d8f5; color: #17315f; font-weight: 700; }
+    .upload-box { margin-top: 7px; border: 2px dashed #b7c9ff; background: #eef5ff; border-radius: 18px; padding: 18px; text-align: center; color: #64748b; font-size: 13px; }
+    .agree { display: flex; align-items: flex-start; gap: 9px; color: #073077; line-height: 1.5; }
+    .text-link-btn { margin-left: 4px; border: 0; background: transparent; color: #ff3fb4; font-weight: 950; text-decoration: underline; cursor: pointer; }
+    .privacy-detail { display: none; margin-top: 10px; padding: 13px; border-radius: 16px; background: #f3f8ff; color: #334155; font-size: 13px; line-height: 1.65; font-weight: 600; }
+    .privacy-detail.open { display: block; }
+    .submit { width: 100%; margin-top: 18px; border: 0; border-radius: 999px; padding: 16px; background: linear-gradient(135deg, #ff3fb4, #58d7ff); color: #fff; font-size: 16px; font-weight: 950; cursor: pointer; }
+    .submit:disabled { opacity: .7; cursor: not-allowed; }
+    .submit-status { min-height: 22px; margin: 10px 0 0; font-weight: 800; text-align: center; color: #06306f; }
+    .friends-gallery-title { font-size: 20px; }
+    .entry { min-width: 220px; min-height: 220px; border-radius: 28px; background: rgba(255,255,255,.96); color: #073077; display: grid; place-items: center; text-align: center; padding: 20px; scroll-snap-align: center; box-shadow: 0 12px 28px rgba(0,0,0,.16); cursor: pointer; overflow: hidden; }
+    .entry img { width: 100%; height: 100%; object-fit: cover; border-radius: 20px; }
+    .activity-locked { display: none; width: min(560px, 100%); margin: 0 auto; padding: 30px 20px; border-radius: 28px; background: rgba(255,255,255,.96); color: #073077; text-align: center; box-shadow: 0 16px 38px rgba(0,0,0,.22); }
+    .activity-locked .lock-icon { font-size: 42px; margin-bottom: 10px; }
+    .activity-locked h3 { font-size: 30px; margin-bottom: 8px; }
+    .activity-locked p { margin: 0; color: #475569; line-height: 1.7; font-weight: 700; }
+    .activity-floating-tabs { display: grid; grid-template-columns: 1fr; gap: 10px; margin: 0 auto 16px; width: min(920px, 100%); }
+    .activity-subtab { border: 1px solid rgba(255,255,255,.16); border-radius: 18px; padding: 14px; background: rgba(255,255,255,.16); backdrop-filter: blur(8px); color: white; font-weight: 950; cursor: pointer; box-shadow: 0 10px 24px rgba(0,0,0,.12); }
+    .activity-subtab.active { background: linear-gradient(135deg, #ff3fb4, #58d7ff); border-color: rgba(255,255,255,.35); }
+    .activity-panel { display: none; }
+    .activity-panel.active { display: block; }
+    .activity-main-panel { padding-top: 12px; }
+    .activity-box { margin-top: 16px; padding: 18px; border-radius: 26px; background: rgba(255,255,255,.96); color: #073077; box-shadow: 0 14px 34px rgba(0,0,0,.16); }
+    .activity-box h3 { text-align: center; font-size: 18px; margin-bottom: 12px; }
+    .activity-preview-card { width: 100%; max-width: 760px; margin: 0 auto 16px; background: transparent; border: 0; border-radius: 0; overflow: visible; box-shadow: none; }
+    .activity-preview-card iframe { width: 100%; height: min(72vh, 720px); min-height: 420px; border: 0; background: #fff; border-radius: 18px; }
+    .large-download { display: block; width: min(360px, 100%); margin: 14px auto 0; padding: 18px 24px; text-align: center; font-size: 20px; font-weight: 900; border-radius: 999px; background: linear-gradient(135deg, #ff3fb4 0%, #58d7ff 100%); color: #fff; box-shadow: 0 14px 32px rgba(255,63,180,.35); }
+    .howto-grid { display: grid; grid-template-columns: 1fr; gap: 18px; }
+    .howto-card { background: rgba(255,255,255,.96); color: #123; border-radius: 24px; padding: 14px; box-shadow: 0 14px 28px rgba(0,0,0,.15); }
+    .howto-card img { display: block; width: 100%; border-radius: 18px; aspect-ratio: 4 / 3; object-fit: cover; background: #fff; }
+    .howto-card p { margin: 12px 4px 4px; font-size: 15px; line-height: 1.55; word-break: keep-all; }
+    .howto-card b { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; margin-right: 6px; border-radius: 999px; background: #ff3fb4; color: #fff; }
+    .buy-grid { display: grid; grid-template-columns: 1fr; gap: 24px; align-items: center; width: min(860px, 100%); margin: 0 auto; }
+    .mockup { width: min(320px, 80vw); margin: 0 auto; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,.28); animation: float 4.4s ease-in-out infinite; display: block; }
+    .shop-list { display: grid; gap: 12px; }
+    .shop { display: block; padding: 17px; border-radius: 22px; background: #fff; color: #073077; font-weight: 950; text-align: center; box-shadow: 0 12px 28px rgba(0,0,0,.18); }
+    .admin-note { border-top: 1px solid rgba(255,255,255,.1); background: #041f56; padding: 24px 18px; color: rgba(219,234,254,.75); text-align: center; font-size: 12px; line-height: 1.7; }
+    .hidden { display: none; }
+    .image-modal { position: fixed; inset: 0; z-index: 99; display: none; align-items: center; justify-content: center; padding: 18px; background: rgba(2,8,23,.82); backdrop-filter: blur(8px); }
+    .image-modal.open { display: flex; }
+    .image-modal img { max-width: min(94vw, 760px); max-height: 88vh; border-radius: 22px; box-shadow: 0 24px 80px rgba(0,0,0,.5); }
+    .modal-close, .modal-nav { position: fixed; border: 0; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+    .modal-close { right: 18px; top: 18px; border-radius: 999px; background: linear-gradient(135deg,#ff3fb4,#58d7ff); color: #fff; font-weight: 950; padding: 10px 14px; }
+    .modal-nav { top: 50%; transform: translateY(-50%); width: 48px; height: 48px; border-radius: 999px; background: rgba(255,255,255,.92); color: #073077; font-size: 34px; font-weight: 950; line-height: 1; }
+    .modal-prev { left: 14px; } .modal-next { right: 14px; }
+    @media (min-width:760px) {
+      .hero { padding: 54px 32px 70px; }
+      .hero-grid { grid-template-columns: 1.1fr .9fr; text-align: left; }
+      .hero-copy { margin-left: 0; }
+      .tabs { grid-template-columns: repeat(4, 1fr); }
+      .tab { font-size: 15px; }
+      .story-card { min-width: 360px; }
+      .grid2 { grid-template-columns: .9fr 1.1fr; }
+      .panel { padding: 22px; }
+      .activity-floating-tabs { grid-template-columns: repeat(3, 1fr); }
+      .howto-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .buy-grid { grid-template-columns: .9fr 1.1fr; }
+      .friends-gallery-title { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <span class="badge">✦ 유쾌하고 귀여운 진주들의 반란 ✦</span>
+        <h1>불량 진주</h1>
+        <p class="hero-copy">
+          자, 우리가 누구?<br>
+          <strong>불 량 진 주!</strong><br>
+          좋아, 이제부터 진짜 불량이 뭔지 보여 주자!<br><br>
+          자신의 가치를 찾고, 자존감을 키워 가는<br>
+          진주들의 좌충우돌 모험담!
+        </p>
+      </div>
+      <div class="book-cover"><img src="assets/images/book-cover.jpg" alt="불량 진주 표지"></div>
+    </div>
+  </header>
+
+  <nav>
+    <div class="tabs">
+      <button class="tab active" data-tab="story" onclick="showSection('story')">불량 진주 이야기</button>
+      <button class="tab" data-tab="contest" onclick="showSection('contest')">불량 진주 그리기 콘테스트</button>
+      <button class="tab" data-tab="activity" onclick="showSection('activity')">책놀이 도안</button>
+      <button class="tab" data-tab="buy" onclick="showSection('buy')">도서 구매하기</button>
+    </div>
+  </nav>
+
+  <section id="story" class="content">
+    <div class="section-title"><span class="eyebrow">✦ Story</span><h2>불량 진주 이야기</h2></div>
+    <div class="slider story-slider"><div class="story-card"><img src="assets/images/story-1.png" alt="불량 진주 이야기 카드뉴스 1" data-story-index="0"></div>
+<div class="story-card"><img src="assets/images/story-2.png" alt="불량 진주 이야기 카드뉴스 2" data-story-index="1"></div>
+<div class="story-card"><img src="assets/images/story-3.png" alt="불량 진주 이야기 카드뉴스 3" data-story-index="2"></div>
+<div class="story-card"><img src="assets/images/story-4.png" alt="불량 진주 이야기 카드뉴스 4" data-story-index="3"></div>
+<div class="story-card"><img src="assets/images/story-5.png" alt="불량 진주 이야기 카드뉴스 5" data-story-index="4"></div>
+<div class="story-card"><img src="assets/images/story-6.png" alt="불량 진주 이야기 카드뉴스 6" data-story-index="5"></div>
+<div class="story-card"><img src="assets/images/story-7.png" alt="불량 진주 이야기 카드뉴스 7" data-story-index="6"></div></div>
+  </section>
+
+  <section id="contest" class="content hidden">
+    <div class="section-title">
+      <span class="eyebrow">✦ Contest</span>
+      <h2>불량 진주 그리기 콘테스트</h2>
+      <p>너만의 불량 진주를 그려봐!</p>
+    </div>
+    <div class="grid2">
+      <div class="panel">
+        <button class="contest-info-toggle" type="button" onclick="toggleContestInfo()">콘테스트 안내 확인하기</button>
+        <div id="contestInfo" class="contest-info-box">
+          <h4>참여 방법</h4>
+          <ol>
+            <li>불량 진주 캐릭터를 자유롭게 그려 주세요.<br><span>* 모양, 색깔, 표정, 옷차림 모두 자유!</span><br><span>* 거창한 작품 NO! 아이가 가볍게 그린 그림이면 충분해요!</span></li>
+            <li>그림을 촬영해 사진을 프로필 링크 응모 페이지로 제출해 주세요.</li>
+            <li>참여 완료 댓글을 달아주세요.</li>
+          </ol>
+          <h4>참여 대상</h4><p>만 12세 미만 어린이 독자</p>
+          <h4>이벤트 발표</h4><p>6월 5일(금)</p>
+          <h4>시상 내역</h4>
+          <ul>
+            <li>👑 매력통통 진주상 (2인) - 모바일 신세계 상품권 10만 원</li>
+            <li>👑 엉뚱발랄 진주상 (3인) - 비룡소 빅! 럭키박스</li>
+            <li>👑 개성만점 진주상 (10인) - 비룡북샵 포인트 50,000원</li>
+            <li>👑 표정천재 진주상 (5인) - 『불량 진주』 저자 사인본</li>
+          </ul>
+        </div>
+        <h3>응모하기</h3>
+        <label>이름<input id="entryName" type="text" placeholder="이름 입력" required></label>
+        <label>휴대폰 번호<input id="entryPhone" type="tel" placeholder="010-0000-0000 형식으로 입력" required></label>
+        <label>인스타그램 아이디<input id="entryInstagram" type="text" placeholder="@ 없이 입력" required></label>
+        <label>작품 한 줄 설명<textarea id="entryDescription" placeholder="작품을 한 줄로 소개해 주세요." required></textarea></label>
+        <label>이미지 파일 1개<input id="entryImage" class="real-file-input" type="file" accept="image/png,image/jpeg,image/webp" required><div class="upload-box">JPG/PNG/WebP 파일 1개 업로드<br>10MB 이하</div></label>
+        <label class="agree"><input id="privacyAgree" type="checkbox" required><span>개인정보 수집 및 이용에 동의합니다.<button class="text-link-btn" type="button" onclick="togglePrivacy(event)">자세히 보기</button></span></label>
+        <div id="privacyDetail" class="privacy-detail">
+          <strong>개인정보 수집 및 이용 안내</strong><br>
+          1. 수집 항목: 이름, 휴대폰 번호, 인스타그램 아이디<br>
+          2. 수집 및 이용 목적: 경품 당첨자 안내 및 경품 발송<br>
+          3. 보유 및 이용 기간: 경품 발송 후 1개월 내 파기<br><br>
+          개인정보 수집 및 이용에 대한 동의를 거부할 권리가 있습니다.<br>
+          단, 동의하지 않을 경우 경품 제공이 제한됩니다.
+        </div>
+        <button id="submitButton" class="submit" onclick="submitContestEntry(event)">접수하기</button>
+        <p id="submitStatus" class="submit-status"></p>
+      </div>
+      <div class="panel dark">
+        <h3 class="friends-gallery-title">친구들 작품 구경하기</h3>
+        <div id="approvedGallery" class="slider">
+          <div class="entry"><div><div style="font-size:48px;">✨</div><strong>승인된 작품이 여기에 보여요</strong></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="activity" class="content hidden">
+  <div class="section-title">
+    <span class="eyebrow">✦ Activity</span>
+    <h2>책놀이 도안</h2>
+  </div>
+
+  <div id="activityLocked" class="activity-locked">
+    <div class="lock-icon">🔒</div>
+    <h3>Coming Soon</h3>
+    <p>책놀이 도안은 5월 14일 오전 10시에 공개됩니다.</p>
+  </div>
+
+  <div id="activityOpenContent" class="activity-open-content">
+    <div class="activity-floating-tabs">
+      <button class="activity-subtab active" type="button" onclick="showActivity('squishy', event)">빅 스퀴시 만들기</button>
+      <button class="activity-subtab" type="button" onclick="showActivity('necklace', event)">목걸이 두뇌 게임</button>
+      <button class="activity-subtab" type="button" onclick="showActivity('sudoku', event)">진주 스도쿠</button>
+    </div>
+
+    <div class="panel dark activity-main-panel">
+      <div id="activity-squishy" class="activity-panel active">
+        <div class="activity-box">
+          <h3>도안 미리보기</h3>
+          <div class="activity-preview-card simple">
+            <iframe src="assets/pdfs/(비룡소) 불량진주 스퀴시 만들기 도안.pdf#toolbar=0" title="불량 진주 빅 스퀴시 만들기 도안 미리보기"></iframe>
+          </div>
+          <a class="download-btn large-download" href="assets/pdfs/(비룡소) 불량진주 스퀴시 만들기 도안.pdf" download>다운로드</a>
+        </div>
+        <div class="activity-box">
+          <h3>활용 방법</h3>
+          <div class="howto-grid">
+            <div class="howto-card"><img src="assets/images/스퀴시_1.jpg" alt="스퀴시 만들기 1단계"><p><b>1</b> 도안을 박스 테이프로 코팅한 후 테두리에 맞춰 오려 주세요.</p></div>
+            <div class="howto-card"><img src="assets/images/스퀴시_2.jpg" alt="스퀴시 만들기 2단계"><p><b>2</b> 앞면 테두리에 얇은 투명 테이프를 붙이고, 곡선에 맞게 접어가며 뒷면과 연결해 주세요.</p></div>
+            <div class="howto-card"><img src="assets/images/스퀴시_3.jpg" alt="스퀴시 만들기 3단계"><p><b>3</b> 이 때, 솜이 들어갈 구멍을 꼭 남겨 주세요.</p></div>
+            <div class="howto-card"><img src="assets/images/스퀴시_4.jpg" alt="스퀴시 만들기 4단계"><p><b>4</b> 솜이나 휴지를 원하는 만큼 채워 주세요.</p></div>
+            <div class="howto-card"><img src="assets/images/스퀴시_5.jpg" alt="스퀴시 만들기 5단계"><p><b>5</b> 솜 구멍에 테이프를 붙여 주면 말랑말랑 스퀴시 완성이에요!</p></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="activity-necklace" class="activity-panel">
+        <div class="activity-box">
+          <h3>도안 미리보기</h3>
+          <div class="activity-preview-card simple">
+            <iframe src="assets/pdfs/(비룡소) 불량진주 목걸이 게임 도안.pdf#toolbar=0" title="진주 목걸이 두뇌 게임 도안 미리보기"></iframe>
+          </div>
+          <a class="download-btn large-download" href="assets/pdfs/(비룡소) 불량진주 목걸이 게임 도안.pdf" download>다운로드</a>
+        </div>
+        <div class="activity-box">
+          <h3>활용 방법</h3>
+          <div class="howto-grid">
+            <div class="howto-card"><img src="assets/images/목걸이게임_1.jpg" alt="목걸이 게임 1단계"><p><b>1</b> 카드와 진주를 오려서 준비해 주세요. 코팅해서 사용하면 더 오래 갖고 놀 수 있어요.</p></div>
+            <div class="howto-card"><img src="assets/images/목걸이게임_2.jpg" alt="목걸이 게임 2단계"><p><b>2</b> 빨대를 1~2cm 길이로 잘라 진주 뒷면에 테이프로 붙여 주세요.</p></div>
+            <div class="howto-card"><img src="assets/images/목걸이게임_4.jpg" alt="목걸이 게임 3단계"><p><b>3</b> 끈과 뒤에 빨대를 붙인 진주를 준비하고, 배열 카드는 뒤집어 놓아 주세요.</p></div>
+            <div class="howto-card"><img src="assets/images/목걸이게임_3.jpg" alt="목걸이 게임 4단계"><p><b>4</b> 배열 카드를 하나씩 뒤집고 카드 그림 순서에 맞춰 진주를 끈에 끼워 주세요.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="activity-sudoku" class="activity-panel">
+        <div class="activity-box">
+          <h3>도안 미리보기</h3>
+          <div class="activity-preview-card simple">
+            <iframe src="assets/pdfs/(비룡소) 불량진주 스도쿠 도안.pdf#toolbar=0" title="진주 스도쿠 도안 미리보기"></iframe>
+          </div>
+          <a class="download-btn large-download" href="assets/pdfs/(비룡소) 불량진주 스도쿠 도안.pdf" download>다운로드</a>
+        </div>
+        <div class="activity-box">
+          <h3>활용 방법</h3>
+          <div class="howto-grid">
+            <div class="howto-card"><img src="assets/images/스도쿠_1.jpg" alt="스도쿠 1단계"><p><b>1</b> 스도쿠 판과 그림은 점선을 따라 오려 주세요.</p></div>
+            <div class="howto-card"><img src="assets/images/스도쿠_2.jpg" alt="스도쿠 2단계"><p><b>2</b> 판과 그림을 코팅하고, 빈칸과 그림 뒷면에 벨크로 테이프를 붙여주면 더 오래 사용할 수 있어요.</p></div>
+            <div class="howto-card"><img src="assets/images/스도쿠_3.jpg" alt="스도쿠 3단계"><p><b>3</b> 가로/세로 한 줄에 같은 그림이 들어가지 않도록 빈칸을 채워 보세요.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+  <section id="buy" class="content hidden">
+    <div class="section-title"><span class="eyebrow">✦ Bookshop</span><h2>도서 구매하기</h2><p>원하는 구매처 버튼을 누르면 구매 페이지로 이동합니다.</p></div>
+    <div class="buy-grid">
+      <img class="mockup" src="assets/images/book-cover.jpg" alt="불량 진주 표지">
+      <div class="shop-list">
+        <a class="shop" href="https://m.yes24.com/goods/detail/188603363" target="_blank" rel="noreferrer">예스24</a>
+        <a class="shop" href="http://aladin.kr/p/ZS6zb" target="_blank" rel="noreferrer">알라딘</a>
+        <a class="shop" href="https://product.kyobobook.co.kr/detail/S000219812176" target="_blank" rel="noreferrer">교보문고</a>
+        <a class="shop" href="https://bir.co.kr/bookshop/149977/" target="_blank" rel="noreferrer">비룡북샵</a>
+      </div>
+    </div>
+  </section>
+
+  <div id="imageModal" class="image-modal">
+    <button class="modal-close" type="button" onclick="closeImage()">닫기</button>
+    <button class="modal-nav modal-prev" type="button" onclick="moveImage(-1)">‹</button>
+    <img id="modalImage" src="" alt="확대 이미지" onclick="event.stopPropagation()">
+    <button class="modal-nav modal-next" type="button" onclick="moveImage(1)">›</button>
+  </div>
+
+  <footer class="admin-note">관리자 페이지: <a href="admin.html">admin.html</a> · 공개 전 보안 설정을 반드시 확인하세요.</footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script>
+    const cfg = window.BAD_PEARL_CONFIG;
+    const supabaseClient = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
+    const CONTEST_CLOSE_AT = new Date("2026-06-01T00:00:00+09:00");
+    const ACTIVITY_OPEN_AT = new Date("2026-05-14T10:00:00+09:00");
+    const storyImages = ['assets/images/story-1.png', 'assets/images/story-2.png', 'assets/images/story-3.png', 'assets/images/story-4.png', 'assets/images/story-5.png', 'assets/images/story-6.png', 'assets/images/story-7.png'];
+    let currentImageIndex = 0;
+
+    function showSection(id) {
+      const valid = ["story","contest","activity","buy"];
+      const sectionId = valid.includes(id) ? id : "story";
+      document.querySelectorAll("section.content").forEach(s => s.classList.add("hidden"));
+      document.getElementById(sectionId).classList.remove("hidden");
+      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+      document.querySelector('[data-tab="' + sectionId + '"]').classList.add("active");
+      history.pushState(null, "", "#" + sectionId);
+      window.scrollTo({ top: document.querySelector("nav").offsetTop, behavior: "smooth" });
+    }
+    window.addEventListener("popstate", () => {
+      const id = location.hash.replace("#", "") || "story";
+      if (document.getElementById(id)) {
+        document.querySelectorAll("section.content").forEach(s => s.classList.add("hidden"));
+        document.getElementById(id).classList.remove("hidden");
+        document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+        const tab = document.querySelector('[data-tab="' + id + '"]');
+        if (tab) tab.classList.add("active");
+      }
+    });
+    function toggleContestInfo() { document.getElementById("contestInfo").classList.toggle("open"); }
+    function togglePrivacy(event) { event.preventDefault(); event.stopPropagation(); document.getElementById("privacyDetail").classList.toggle("open"); }
+    function showActivity(id, event) {
+      document.querySelectorAll(".activity-panel").forEach(p => p.classList.remove("active"));
+      document.getElementById("activity-" + id).classList.add("active");
+      document.querySelectorAll(".activity-subtab").forEach(t => t.classList.remove("active"));
+      event.currentTarget.classList.add("active");
+    }
+    function openImageByIndex(i) {
+      currentImageIndex = i;
+      document.getElementById("modalImage").src = storyImages[currentImageIndex];
+      document.getElementById("imageModal").classList.add("open");
+    }
+    function openImage(src) {
+      currentImageIndex = -1;
+      document.getElementById("modalImage").src = src;
+      document.getElementById("imageModal").classList.add("open");
+    }
+    function moveImage(direction) {
+      event.stopPropagation();
+      if (currentImageIndex < 0) return;
+      currentImageIndex = (currentImageIndex + direction + storyImages.length) % storyImages.length;
+      document.getElementById("modalImage").src = storyImages[currentImageIndex];
+    }
+    function closeImage() { document.getElementById("imageModal").classList.remove("open"); }
+
+    document.addEventListener("click", (e) => {
+      const storyImg = e.target.closest(".story-card img");
+      if (storyImg) openImageByIndex(Number(storyImg.dataset.storyIndex));
+      const galleryImg = e.target.closest("#approvedGallery img");
+      if (galleryImg) openImage(galleryImg.src);
+    });
+
+    function initOpenCloseState() {
+      const now = new Date();
+      const locked = document.getElementById("activityLocked");
+      const content = document.getElementById("activityOpenContent");
+      if (now >= ACTIVITY_OPEN_AT) { locked.style.display = "none"; content.style.display = "block"; }
+      else { locked.style.display = "block"; content.style.display = "none"; }
+
+      if (now >= CONTEST_CLOSE_AT) {
+        const button = document.getElementById("submitButton");
+        const status = document.getElementById("submitStatus");
+        button.textContent = "접수가 마감되었습니다";
+        button.disabled = true;
+        status.textContent = "5월 31일 접수가 종료되었습니다.";
+      }
+    }
+
+    async function submitContestEntry(event) {
+      event.preventDefault();
+      const status = document.getElementById("submitStatus");
+      const button = document.getElementById("submitButton");
+      if (new Date() >= CONTEST_CLOSE_AT) { status.textContent = "접수가 마감되었습니다."; return; }
+
+      const name = document.getElementById("entryName").value.trim();
+      const phone = document.getElementById("entryPhone").value.trim();
+      const instagram = document.getElementById("entryInstagram").value.trim();
+      const description = document.getElementById("entryDescription").value.trim();
+      const agree = document.getElementById("privacyAgree").checked;
+      const file = document.getElementById("entryImage").files[0];
+
+      if (!name || !phone || !instagram || !description || !file || !agree) { status.textContent = "필수 항목과 개인정보 동의를 확인해 주세요."; return; }
+      if (!["image/png","image/jpeg","image/webp"].includes(file.type)) { status.textContent = "JPG, PNG, WebP 이미지만 업로드할 수 있습니다."; return; }
+      if (file.size > 10 * 1024 * 1024) { status.textContent = "이미지는 10MB 이하로 업로드해 주세요."; return; }
+
+      button.disabled = true; button.textContent = "접수 중..."; status.textContent = "";
+      try {
+        const ext = file.name.split(".").pop().toLowerCase().replace(/[^a-z0-9]/g, "");
+        const filePath = Date.now() + "-" + Math.random().toString(36).slice(2) + "." + ext;
+        const { error: uploadError } = await supabaseClient.storage.from("contest-images").upload(filePath, file, { cacheControl: "3600", upsert: false });
+        if (uploadError) throw uploadError;
+        const { data } = supabaseClient.storage.from("contest-images").getPublicUrl(filePath);
+        const { error: insertError } = await supabaseClient.from("contest_entries").insert({
+          child_name: name,
+          phone: phone,
+          instagram_id: instagram,
+          description: description,
+          image_url: data.publicUrl,
+          approved: false
+        });
+        if (insertError) throw insertError;
+        status.textContent = "정상적으로 접수가 완료되었습니다.";
+        document.getElementById("entryName").value = "";
+        document.getElementById("entryPhone").value = "";
+        document.getElementById("entryInstagram").value = "";
+        document.getElementById("entryDescription").value = "";
+        document.getElementById("entryImage").value = "";
+        document.getElementById("privacyAgree").checked = false;
+        loadApprovedEntries();
+      } catch (err) {
+        console.error(err);
+        status.textContent = "접수 중 오류가 발생했습니다. 설정을 확인해 주세요.";
+      } finally {
+        button.disabled = false; button.textContent = "접수하기";
+      }
+    }
+
+    async function loadApprovedEntries() {
+      const gallery = document.getElementById("approvedGallery");
+      const { data, error } = await supabaseClient.from("contest_entries").select("image_url, description").eq("approved", true).order("created_at", { ascending: false });
+      if (error || !data || data.length === 0) return;
+      gallery.innerHTML = data.map(item => `
+        <div class="entry">
+          <div>
+            <img src="${item.image_url}" alt="친구들 작품">
+            ${item.description ? `<p style="margin:10px 0 0;font-weight:900;">${item.description}</p>` : ""}
+          </div>
+        </div>`).join("");
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const initial = location.hash.replace("#", "") || "story";
+      if (document.getElementById(initial)) {
+        document.querySelectorAll("section.content").forEach(s => s.classList.add("hidden"));
+        document.getElementById(initial).classList.remove("hidden");
+        document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+        const tab = document.querySelector('[data-tab="' + initial + '"]');
+        if (tab) tab.classList.add("active");
+      }
+      initOpenCloseState();
+      loadApprovedEntries();
+    });
+  </script>
+</body>
+</html>

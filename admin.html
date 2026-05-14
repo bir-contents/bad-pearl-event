@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>불량 진주 관리자</title>
+  <style>
+    body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;background:#f5f7fb;color:#123}
+    main{max-width:1100px;margin:0 auto;padding:24px}
+    h1{color:#073077}
+    .card{background:#fff;border-radius:18px;padding:18px;margin:14px 0;box-shadow:0 8px 24px rgba(0,0,0,.08)}
+    input{width:100%;padding:12px;margin:8px 0;border:1px solid #ccd6ee;border-radius:12px}
+    button,a.btn{border:0;border-radius:999px;padding:10px 16px;background:linear-gradient(135deg,#ff3fb4,#58d7ff);color:#fff;font-weight:900;cursor:pointer;text-decoration:none;display:inline-block;margin:4px}
+    table{width:100%;border-collapse:collapse;background:#fff;border-radius:16px;overflow:hidden}
+    th,td{padding:10px;border-bottom:1px solid #e5e7eb;text-align:left;font-size:14px;vertical-align:top}
+    img{max-width:120px;border-radius:10px}
+    .hidden{display:none}
+    .status{font-weight:800;color:#073077}
+    @media(max-width:760px){table,thead,tbody,tr,th,td{display:block}thead{display:none}td{border-bottom:0}tr{border-bottom:1px solid #e5e7eb;padding:10px}}
+  </style>
+</head>
+<body>
+<main>
+  <h1>불량 진주 관리자</h1>
+  <section id="loginBox" class="card">
+    <h2>로그인</h2>
+    <input id="email" type="email" placeholder="관리자 이메일">
+    <input id="password" type="password" placeholder="비밀번호">
+    <button onclick="login()">로그인</button>
+    <p id="loginStatus" class="status"></p>
+  </section>
+  <section id="adminBox" class="hidden">
+    <div class="card">
+      <button onclick="loadEntries()">새로고침</button>
+      <button onclick="downloadCSV()">엑셀용 CSV 다운로드</button>
+      <button onclick="logout()">로그아웃</button>
+      <p class="status">승인하면 공개 페이지의 ‘친구들 작품 구경하기’에 노출됩니다.</p>
+    </div>
+    <div class="card">
+      <table>
+        <thead><tr><th>이미지</th><th>정보</th><th>상태</th><th>관리</th></tr></thead>
+        <tbody id="entryBody"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+const cfg=window.BAD_PEARL_CONFIG;
+const supabaseClient=window.supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY);
+let entries=[];
+async function checkSession(){
+  const {data}=await supabaseClient.auth.getSession();
+  if(data.session){document.getElementById("loginBox").classList.add("hidden");document.getElementById("adminBox").classList.remove("hidden");loadEntries();}
+}
+async function login(){
+  const email=document.getElementById("email").value.trim();
+  const password=document.getElementById("password").value;
+  const {error}=await supabaseClient.auth.signInWithPassword({email,password});
+  document.getElementById("loginStatus").textContent=error?error.message:"";
+  if(!error) checkSession();
+}
+async function logout(){await supabaseClient.auth.signOut();location.reload();}
+async function loadEntries(){
+  const {data,error}=await supabaseClient.from("contest_entries").select("*").order("created_at",{ascending:false});
+  if(error){alert("불러오기 실패: "+error.message);return;}
+  entries=data||[];
+  document.getElementById("entryBody").innerHTML=entries.map(e=>`<tr>
+    <td><a href="${e.image_url}" target="_blank"><img src="${e.image_url}"></a></td>
+    <td><b>${e.child_name||""}</b><br>${e.phone||""}<br>${e.instagram_id||""}<br>${e.description||""}<br><small>${e.created_at||""}</small></td>
+    <td>${e.approved?"공개":"비공개"}</td>
+    <td><button onclick="setApproved(${e.id},${!e.approved})">${e.approved?"비공개":"승인"}</button><a class="btn" href="${e.image_url}" download target="_blank">이미지</a></td>
+  </tr>`).join("");
+}
+async function setApproved(id,value){
+  const {error}=await supabaseClient.from("contest_entries").update({approved:value}).eq("id",id);
+  if(error){alert("변경 실패: "+error.message);return;}
+  loadEntries();
+}
+function downloadCSV(){
+  const headers=["created_at","child_name","phone","instagram_id","description","image_url","approved"];
+  const rows=[headers.join(",")].concat(entries.map(e=>headers.map(h=>`"${String(e[h]??"").replaceAll('"','""')}"`).join(",")));
+  const blob=new Blob(["\ufeff"+rows.join("\n")],{type:"text/csv;charset=utf-8;"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");a.href=url;a.download="bulryang-jinju-contest-entries.csv";a.click();URL.revokeObjectURL(url);
+}
+checkSession();
+</script>
+</body>
+</html>
